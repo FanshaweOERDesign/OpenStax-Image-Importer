@@ -106,8 +106,9 @@
             <textarea id="htmlContent" rows="10" cols="50" placeholder="Paste your page HTML here..."></textarea>
 
             <button id="downloadZip">Process Images</button>
-            <textarea id="output" rows="10" cols="50" placeholder="Processed output will appear here..."></textarea>
-            <button id="copyBtn">Copy Output</button>
+            <div id="status" style="display: none; font-weight: bold;">Processing...</div>
+            <textarea id="output" rows="10" cols="50" style="display: none;" placeholder="Processed output will appear here..."></textarea>
+            <button id="copyBtn" style="display: none;">Copy Output</button>
             <a id="help-link" href="#" onclick="document.getElementById('help-modal').style.display='block'; return false;"
             style="color: #0074d9; text-decoration: underline;">How to use this app</a>
         </div>
@@ -249,6 +250,9 @@
         $('downloadZip').addEventListener('click', async () => {
             const rawHTML = $('htmlContent').value;
             const output = $('output');
+            output.style.display = 'none';
+            $('copyBtn').style.display = 'none';
+            $('status').style.display = 'block';
             const sampleImageUrl = $('sample-image-url').value.trim();
             const openStaxUrl = $('openstax-url').value.trim();
             let openStaxTitle = '';
@@ -311,7 +315,10 @@
                 }
 
             });
+            $('status').style.display = 'none';
             output.value = doc.documentElement.querySelector('body').innerHTML;
+            output.style.display = 'block';
+            $('copyBtn').style.display = 'block';
         });
 
         $('htmlContent').addEventListener('click', () => {
