@@ -160,13 +160,27 @@
         }
 
         function getImageFilename(url) {
-            return url.split('/').pop().split('.')[0] + (url.includes('webp') ? '.webp' : '.jpg');
+            return url.split('/').pop().split('.')[0] + (url.includes('webp') ? '.jpg' : url.substring(url.lastIndexOf('.')));
         }
 
-        async function fetchAsJPGBlob(url) {
+        async function fetchAsBlob(url) {
             const proxyUrl = `/proxy-image?url=${encodeURIComponent(url)}`;
             const response = await fetch(proxyUrl);
-            return await response.blob();
+            const blob = await response.blob();
+
+            // convert to JPG if WEBP
+            if (blob.type === 'image/webp') {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(blob);
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                const jpgBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
+                return jpgBlob;
+            }
+            return blob;
         }
 
         async function createZipFromImages(urls) {
@@ -175,7 +189,7 @@
             for (let i = 0; i < urls.length; i++) {
                 const url = urls[i];
                 try {
-                    const blob = await fetchAsJPGBlob(url);
+                    const blob = await fetchAsBlob(url);
                     let imageFileName = getImageFilename(url);
 
                     zip.file(imageFileName, blob);
