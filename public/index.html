@@ -58,6 +58,7 @@
         footer a {
             color: white;
         }
+
         #help-modal {
             display: none;
             position: fixed;
@@ -107,10 +108,12 @@
 
             <button id="downloadZip">Process Images</button>
             <div id="status" style="display: none; font-weight: bold;">Processing...</div>
-            <textarea id="output" rows="10" cols="50" style="display: none;" placeholder="Processed output will appear here..."></textarea>
+            <textarea id="output" rows="10" cols="50" style="display: none;"
+                placeholder="Processed output will appear here..."></textarea>
             <button id="copyBtn" style="display: none;">Copy Output</button>
-            <a id="help-link" href="#" onclick="document.getElementById('help-modal').style.display='block'; return false;"
-            style="color: #0074d9; text-decoration: underline;">How to use this app</a>
+            <a id="help-link" href="#"
+                onclick="document.getElementById('help-modal').style.display='block'; return false;"
+                style="color: #0074d9; text-decoration: underline;">How to use this app</a>
         </div>
     </div>
     <div id="logo-div">
@@ -123,14 +126,18 @@
     </footer>
     <div id="help-modal">
         <h2>How to Use</h2>
-        <p>This app assumes that the input provided is Pressbooks page HTML that has been imported from OpenStax using the OpenStax to Pressbooks XML app. To use this app:</p>
+        <p>This app assumes that the input provided is Pressbooks page HTML that has been imported from OpenStax using
+            the OpenStax to Pressbooks XML app. To use this app:</p>
         <ol>
-            <li>Paste the URL for the source OpenStax book. This will be used to supply backlinks in the image attribution. If you do not supply a URL, no backlinks will be created.</li>
+            <li>Paste the URL for the source OpenStax book. This will be used to supply backlinks in the image
+                attribution. If you do not supply a URL, no backlinks will be created.</li>
             <li>Enter a sample image URL from your Pressbook. This can be the URL of any image already added to the
-                Media Library of your Pressbook, and is required for the app to process the images imported from OpenStax so
+                Media Library of your Pressbook, and is required for the app to process the images imported from
+                OpenStax so
                 that they will display on your generated Pressbooks pages.</li>
             <li>Paste in the page HTML from Pressbooks</li>
-            <li>Click the download button. A zip archive entitled <em>images</em> will download. This archive contains the imported images.</li>
+            <li>Click the download button. A zip archive entitled <em>images</em> will download. This archive contains
+                the imported images.</li>
             <li>Upload the images to your Pressbook Media Library. This can be done quickly by selecting all of the
                 contents of the downloaded images folder and dragging the contents into the Media Library file uploader.
             </li>
@@ -170,14 +177,29 @@
 
             // convert to JPG if WEBP
             if (blob.type === 'image/webp') {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(blob);
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+
+                // Wait for the image to load before drawing to canvas
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                    img.src = URL.createObjectURL(blob);
+                });
+
                 const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
+                canvas.width = img.naturalWidth;  // Use naturalWidth/naturalHeight
+                canvas.height = img.naturalHeight;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0);
-                const jpgBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
+
+                const jpgBlob = await new Promise(resolve =>
+                    canvas.toBlob(resolve, 'image/jpeg', 0.9)
+                );
+
+                // Clean up the object URL
+                URL.revokeObjectURL(img.src);
+
                 return jpgBlob;
             }
             return blob;
