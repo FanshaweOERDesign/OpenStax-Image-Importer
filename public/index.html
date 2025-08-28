@@ -101,10 +101,10 @@
         <h1>Import OpenStax Images to Pressbooks</h1>
         <div>
             <input type="text" style="width: 100%; max-width: 600px;" id="openstax-url"
-                placeholder="Enter OpenStax URL here (optional)" />
+                placeholder="Enter OpenStax URL here (optional)" maxlength="200" />
             <input type="text" style="width: 100%; max-width: 600px;" id="sample-image-url"
-                placeholder="Paste sample image URL from your Pressbook" />
-            <textarea id="htmlContent" rows="10" cols="50" placeholder="Paste your page HTML here..."></textarea>
+                placeholder="Paste sample image URL from your Pressbook" maxlength="200" />
+            <textarea id="htmlContent" rows="10" cols="50" placeholder="Paste your page HTML here..." maxlength="100000"></textarea>
 
             <button id="downloadZip">Process Images</button>
             <div id="status" style="display: none; font-weight: bold;">Processing...</div>
@@ -146,12 +146,19 @@
         <button id="close-help"
             onclick="document.getElementById('help-modal').style.display='none'; return false;">Close</button>
     </div>
+    <script src="./purify.min.js"></script>
     <script>
         // this both creates a zip file from the images and edits the HTML to replace 
         // the image URLs with the new Pressbooks URLs
         function $(id) {
             return document.getElementById(id);
         }
+
+        function clientSideLimits(input, maxLength = 1000) {
+        return input
+            .slice(0, maxLength)
+            .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ''); // Remove problematic chars
+    }
 
         async function fetchOpenStaxTitle(url) {
             if (!url) return '';
@@ -283,14 +290,20 @@
             return caption;
         }
 
+        function clientSideLimits(input, maxLength = 1000) {
+            return input
+                .slice(0, maxLength)
+                .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ''); // Remove problematic chars
+        }
+
         $('downloadZip').addEventListener('click', async () => {
-            const rawHTML = $('htmlContent').value;
+            const rawHTML = DOMPurfify.sanitize(clientSideLimits($('htmlContent').value), 100000);
             const output = $('output');
             output.style.display = 'none';
             $('copyBtn').style.display = 'none';
             $('status').style.display = 'block';
-            const sampleImageUrl = $('sample-image-url').value.trim();
-            const openStaxUrl = $('openstax-url').value.trim();
+            const sampleImageUrl = clientSideLimits($('sample-image-url').value.trim());
+            const openStaxUrl = clientSideLimits($('openstax-url').value.trim());
             let openStaxTitle = '';
             if (openStaxUrl) {
                 openStaxTitle = await fetchOpenStaxTitle(openStaxUrl);
