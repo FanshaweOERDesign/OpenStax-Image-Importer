@@ -25,7 +25,6 @@ app.get('/proxy-image', async (req, res) => {
 
   try {
     const response = await fetch(imageUrl);
-    console.log(response);
     if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
     const contentType = response.headers.get('content-type');
     const buffer = await response.arrayBuffer();
