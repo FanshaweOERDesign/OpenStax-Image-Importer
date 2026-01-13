@@ -297,7 +297,7 @@
         }
 
         $('downloadZip').addEventListener('click', async () => {
-            const rawHTML = DOMPurfify.sanitize(clientSideLimits($('htmlContent').value), 100000);
+            const rawHTML = DOMPurify.sanitize(clientSideLimits($('htmlContent').value), 100000);
             const output = $('output');
             output.style.display = 'none';
             $('copyBtn').style.display = 'none';
