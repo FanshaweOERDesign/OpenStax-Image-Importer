@@ -336,7 +336,7 @@
             const imageUrls = Array.from(imageContainers).map(figure => {
                 const img = nonCaptionedAllowed ? figure : figure.querySelector('figure img');
                 return img ? img.src : null;
-            }).filter(url => url !== null && url.src?.includes('openstax.org'));
+            }).filter(url => url !== null && !url.includes('ecampusontario.pressbooks.pub'));
 
             createZipFromImages(imageUrls);
 
