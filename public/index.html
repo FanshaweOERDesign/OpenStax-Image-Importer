@@ -106,6 +106,10 @@
                 placeholder="Paste sample image URL from your Pressbook" maxlength="200" />
             <textarea id="htmlContent" rows="10" cols="50" placeholder="Paste your page HTML here..." maxlength="100000"></textarea>
 
+            <div>
+                <input type="checkbox" id="non-captioned" />
+                <label for="non-captioned">Non-captioned images allowed</label>
+            </div>
             <button id="downloadZip">Process Images</button>
             <div id="status" style="display: none; font-weight: bold;">Processing...</div>
             <textarea id="output" rows="10" cols="50" style="display: none;"
@@ -327,16 +331,17 @@
                 return;
             }
             const doc = new DOMParser().parseFromString(rawHTML, 'text/html');
-            const imageContainers = doc.querySelectorAll('.wp-caption');
+            const nonCaptionedAllowed = $('non-captioned').checked;
+            const imageContainers = nonCaptionedAllowed ? doc.querySelectorAll('img') : doc.querySelectorAll('.wp-caption');
             const imageUrls = Array.from(imageContainers).map(figure => {
-                const img = figure.querySelector('figure img');
+                const img = nonCaptionedAllowed ? figure : figure.querySelector('figure img');
                 return img ? img.src : null;
-            }).filter(url => url !== null);
+            }).filter(url => url !== null && url.src?.includes('openstax.org'));
 
             createZipFromImages(imageUrls);
 
             imageContainers.forEach((figure, index) => {
-                const img = figure.querySelector('figure img');
+                const img = nonCaptionedAllowed ? figure : figure.querySelector('figure img');
                 const openStaxSrc = img.src?.includes('openstax.org') ? img.src : '';
                 const now = new Date();
 
