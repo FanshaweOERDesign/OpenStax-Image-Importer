@@ -104,7 +104,8 @@
                 placeholder="Enter OpenStax URL here (optional)" maxlength="200" />
             <input type="text" style="width: 100%; max-width: 600px;" id="sample-image-url"
                 placeholder="Paste sample image URL from your Pressbook" maxlength="200" />
-            <textarea id="htmlContent" rows="10" cols="50" placeholder="Paste your page HTML here..." maxlength="100000"></textarea>
+            <textarea id="htmlContent" rows="10" cols="50" placeholder="Paste your page HTML here..."
+                maxlength="100000"></textarea>
 
             <div style="flex-direction: row; align-items: center; display: flex;">
                 <input type="checkbox" id="non-captioned" />
@@ -159,10 +160,10 @@
         }
 
         function clientSideLimits(input, maxLength = 1000) {
-        return input
-            .slice(0, maxLength)
-            .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ''); // Remove problematic chars
-    }
+            return input
+                .slice(0, maxLength)
+                .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ''); // Remove problematic chars
+        }
 
         async function fetchOpenStaxTitle(url) {
             if (!url) return '';
@@ -367,8 +368,8 @@
 
                     figure.appendChild(newCaption);
                 }
-
             });
+
             $('status').style.display = 'none';
             output.value = doc.documentElement.querySelector('body').innerHTML;
             output.style.display = 'block';
@@ -397,13 +398,13 @@
     <script>
         // track visits
         (async function () {
-            try{
+            try {
                 const params = new URLSearchParams({
-                  appId: window.location.pathname.split('/').filter(Boolean)[0] || 'unknown',
-                  t: Date.now()
+                    appId: window.location.pathname.split('/').filter(Boolean)[0] || 'unknown',
+                    t: Date.now()
                 });
-                await fetch(`https://apphub-analytics-server-production.up.railway.app/track.gif?${params.toString()}`); 
-            } catch(err) {
+                await fetch(`https://apphub-analytics-server-production.up.railway.app/track.gif?${params.toString()}`);
+            } catch (err) {
                 console.error(err);
             }
         })();
